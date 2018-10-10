@@ -1,0 +1,21 @@
+Package: mapr
+Type: Package
+Title: Manipulating and Projecting Maps in R
+Version: 0.1.0
+Authors@R: person("James", "Grecian", email = "james.grecian@gmail.com",
+  role = c("aut", "cre"))
+Depends:
+    R (>= 3.4.0)
+Imports:
+    dplyr (>= 0.7.6),
+    sf (>= 0.6-3),
+    rworldmap (>= 1.3-4)
+Enhances:
+    ggplot2
+Description: Tools to load shapefiles from the Natural Earth database using rworldmap and 
+    manipulate them for plotting using ggplot2.
+License: GPL-2
+URL: https://github.com/jamesgrecian/mapr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
