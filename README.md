@@ -44,4 +44,6 @@ p1 <- ggplot() +
 print(p1)
 ```
 
-![](README-example-1.png)
+![](README-mapr%20example%20with%20ellies-1.png)
+
+![plot of mapr example with ellies](mapr/README-mapr%20example%20with%20ellies-1.png)
