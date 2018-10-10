@@ -24,7 +24,7 @@ Given a set of locations, for example from a tagged animal, mapr will load a glo
 
 To download the current development version from GitHub:
 
-```{r install}
+```{r install, message = F, warning = F}
 # install.packages("devtools")  
 devtools::install_github("jamesgrecian/mapr")
 ```
@@ -33,7 +33,7 @@ devtools::install_github("jamesgrecian/mapr")
 
 Here's a quick example of how to generate a plot
 
-```{r example}
+```{r mapr example with ellies, message = F, warning = F}
 #load libraries
 require(tidyverse)
 require(sf)
@@ -49,9 +49,10 @@ prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_
 world_shp <- mapr(ellie, prj, buff = 1e6)
 
 #output a plot using ggplot
-ggplot() +
+p1 <- ggplot() +
   geom_sf(aes(), data = world_shp) +
   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>% st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 
-```
+print(p1)
 
+```
