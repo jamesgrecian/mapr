@@ -33,8 +33,9 @@ mapr <- function(dat, prj, buff) {
 
     # convert to sf and project
     dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) %>% sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_transform(prj)
+
     # create clip shape for world map
-    CP <- sf::st_bbox(dat_sf) %>% sf::st_as_sfc() %>% sf::st_buffer(buff) %>% sf::st_segmentize(10000) %>% sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+    CP <- sf::st_bbox(sf::st_union(dat_sf)) %>% sf::st_as_sfc() %>% sf::st_buffer(buff) %>% sf::st_segmentize(1000) %>% sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 
     # Load in world shape from rworldmap and clip
     world_shp <- sf::st_as_sf(rworldmap::countriesLow)
