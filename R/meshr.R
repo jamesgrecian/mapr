@@ -16,18 +16,24 @@
 ##' @return a list containing an inla mesh boundary for the region of interest
 ##' @examples
 ##' \dontrun{
+##'
 ##' require(tidyverse)
 ##' require(sf)
+##' require(INLA)
+##' require(inlabru)
+##'
 ##' data(ellie)
 ##' prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
+##'
 ##' b <- meshr(ellie, prj, buff = 5e5, keep = 0.02)
 ##'
 ##' mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1000000), cutoff = 25000, max.n = 1000)
 ##'
 ##' ggplot() +
+##'   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
 ##'   inlabru::gg(mesh) +
 ##'   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
-##'       st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+##'     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 ##' }
 ##' @importFrom dplyr %>%
 ##' @export

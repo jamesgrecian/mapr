@@ -31,7 +31,7 @@ devtools::install_github("jamesgrecian/mapr")
 
 ## Example 1
 
-Here's a quick example of how to generate a plot using the mapr function
+Here's a quick example of how to generate a plot using the 'mapr' function
 
 ```{r mapr example with ellies, message = F, warning = F}
 #load libraries
