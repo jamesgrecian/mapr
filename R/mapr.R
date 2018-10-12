@@ -30,18 +30,18 @@
 ##' @importFrom dplyr %>%
 ##' @export
 mapr <- function(dat, prj, buff) {
-
+    
     # convert to sf and project
     dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) %>% sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_transform(prj)
-
+    
     # create clip shape for world map
     CP <- sf::st_bbox(sf::st_union(dat_sf)) %>% sf::st_as_sfc() %>% sf::st_buffer(buff) %>% sf::st_segmentize(1000) %>% sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-
+    
     # Load in world shape from rworldmap and clip
     world_shp <- sf::st_as_sf(rworldmap::countriesLow)
     world_shp <- sf::st_crop(world_shp, CP)
     world_shp <- sf::st_buffer(sf::st_transform(world_shp, prj), 0)
-
+    
     CP <- sf::st_bbox(sf::st_buffer(dat_sf, buff))
     world_shp <- sf::st_intersection(world_shp, sf::st_as_sfc(CP))
     CP <- sf::st_as_sfc(CP)
