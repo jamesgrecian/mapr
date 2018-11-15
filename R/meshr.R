@@ -36,39 +36,40 @@
 ##'     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 ##' }
 ##' @importFrom dplyr %>%
+##' @importFrom rmapshaper ms_simplify
 ##' @export
 meshr <- function(dat, prj, buff, keep) {
-    
+
     # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
     if (mean(dat$lat) > 0) {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
     } else {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -90, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
     }
-    
+
     # load in shapefile from rworldmap, clip to north or south and project
     world_shp <- sf::st_as_sf(rworldmap::countriesLow)
     world_shp <- sf::st_crop(world_shp, CP)
     world_shp <- sf::st_transform(world_shp, prj) %>% sf::st_buffer(0)
-    
+
     # convert data to sf and project
     dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) %>% sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_transform(prj)
-    
+
     # create area of interest from convex hull around data with buffer
     sf_poly <- sf::st_convex_hull(sf::st_union(dat_sf)) %>% sf::st_buffer(buff)
-    
+
     # create padding area for inla mesh
     sf_poly_buff <- sf_poly %>% sf::st_buffer(buff)
-    
+
     # crop world shape to area of interest
     world_shp <- sf::st_intersection(world_shp, sf_poly_buff)
-    
+
     # create internal mesh area from world shapefile
     world_shp <- sf::st_sym_difference(sf::st_union(world_shp), sf_poly_buff)
-    
+
     # simplify internal mesh area using ms_simplify
     world_shp = rmapshaper::ms_simplify(world_shp, keep = keep)
-    
+
     # output
     return(list(sf::as_Spatial(sf_poly), list(sf::as_Spatial(sf_poly_buff), sf::as_Spatial(world_shp))))
 }
