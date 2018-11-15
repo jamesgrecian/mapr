@@ -1,6 +1,4 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-
 mapr
 ====
 
@@ -21,7 +19,7 @@ devtools::install_github("jamesgrecian/mapr")
 Example 1
 ---------
 
-Here's a quick example of how to generate a plot using the 'mapr' function
+Here's a quick example of how to generate a plot using the mapr function
 
 ``` r
 #load libraries
