@@ -3,4 +3,3 @@
 export(mapr)
 export(meshr)
 importFrom(dplyr,"%>%")
-importFrom(rmapshaper,ms_simplify)

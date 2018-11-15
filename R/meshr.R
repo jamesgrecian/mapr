@@ -36,7 +36,6 @@
 ##'     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 ##' }
 ##' @importFrom dplyr %>%
-##' @importFrom rmapshaper ms_simplify
 ##' @export
 meshr <- function(dat, prj, buff, keep) {
 
