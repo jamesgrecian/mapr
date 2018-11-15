@@ -67,7 +67,7 @@ meshr <- function(dat, prj, buff, keep) {
     world_shp <- sf::st_sym_difference(sf::st_union(world_shp), sf_poly_buff)
 
     # simplify internal mesh area using ms_simplify
-    world_shp = rmapshaper::ms_simplify(world_shp, keep = keep)
+    world_shp = ms_simplify(world_shp, keep = keep)
 
     # output
     return(list(sf::as_Spatial(sf_poly), list(sf::as_Spatial(sf_poly_buff), sf::as_Spatial(world_shp))))
