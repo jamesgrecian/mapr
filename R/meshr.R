@@ -13,6 +13,8 @@
 ##'   WGS84
 ##' @param buff a buffer to expand region of interest specified in metres
 ##' @param keep the proportion of points to be retained - passed to rmapshaper::ms_simplify
+##' @param Neumann if true this will return a list to allow a Neumann boundary to be implemented
+##' if false this will return a single object defining the coastline
 ##' @return a list containing an inla mesh boundary for the region of interest
 ##' @examples
 ##' \dontrun{
@@ -37,7 +39,7 @@
 ##' }
 ##' @importFrom dplyr %>%
 ##' @export
-meshr <- function(dat, prj, buff, keep) {
+meshr <- function(dat, prj, buff, keep, Neumann = T) {
 
     # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
     if (mean(dat$lat) > 0) {
@@ -70,5 +72,10 @@ meshr <- function(dat, prj, buff, keep) {
     world_shp = rmapshaper::ms_simplify(world_shp, keep = keep)
 
     # output
-    return(list(sf::as_Spatial(sf_poly), list(sf::as_Spatial(sf_poly_buff), sf::as_Spatial(world_shp))))
+    if (Neumann == T) {
+      return(list(sf::as_Spatial(sf_poly), list(sf::as_Spatial(sf_poly_buff), sf::as_Spatial(world_shp))))
+    } else {
+      return(sf::as_Spatial(world_shp))
+    }
+
 }
