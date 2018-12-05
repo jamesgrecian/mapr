@@ -4,7 +4,7 @@
 \alias{meshr}
 \title{meshr}
 \usage{
-meshr(dat, prj, buff, keep)
+meshr(dat, prj, buff, keep, Neumann = T)
 }
 \arguments{
 \item{dat}{a data frame of observations (see details)}
@@ -15,6 +15,9 @@ WGS84}
 \item{buff}{a buffer to expand region of interest specified in metres}
 
 \item{keep}{the proportion of points to be retained - passed to rmapshaper::ms_simplify}
+
+\item{Neumann}{TRUE - returns a list to allow a Neumann boundary to be implemented \cr
+FALSE - returns a single object defining the coastline}
 }
 \value{
 a list containing an inla mesh boundary for the region of interest

@@ -13,8 +13,8 @@
 ##'   WGS84
 ##' @param buff a buffer to expand region of interest specified in metres
 ##' @param keep the proportion of points to be retained - passed to rmapshaper::ms_simplify
-##' @param Neumann if true this will return a list to allow a Neumann boundary to be implemented
-##' if false this will return a single object defining the coastline
+##' @param Neumann TRUE - returns a list to allow a Neumann boundary to be implemented \cr
+##' FALSE - returns a single object defining the coastline
 ##' @return a list containing an inla mesh boundary for the region of interest
 ##' @examples
 ##' \dontrun{
