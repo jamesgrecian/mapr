@@ -1,4 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
 mapr
 ====
 
@@ -14,6 +16,36 @@ To download the current development version from GitHub:
 ``` r
 # install.packages("devtools")  
 devtools::install_github("jamesgrecian/mapr")
+#> classInt (0.2-3 -> 0.3-1) [CRAN]
+#> sf       (0.7-1 -> 0.7-2) [CRAN]
+#> spam     (2.2-0 -> 2.2-1) [CRAN]
+#> 
+#> The downloaded binary packages are in
+#>  /var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T//RtmpVggvOU/downloaded_packages
+#>   
+   checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpVggvOU/remotes1420d521d15/jamesgrecian-mapr-50f11b9/DESCRIPTION’ ...
+  
+✔  checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpVggvOU/remotes1420d521d15/jamesgrecian-mapr-50f11b9/DESCRIPTION’
+#> 
+  
+─  preparing ‘mapr’:
+#> 
+  
+   checking DESCRIPTION meta-information ...
+  
+✔  checking DESCRIPTION meta-information
+#> 
+  
+─  checking for LF line-endings in source and make files and shell scripts
+#> 
+  
+─  checking for empty or unneeded directories
+#> ─  looking to see if a ‘data/datalist’ file should be added
+#> ─  building ‘mapr_0.1.0.tar.gz’
+#> 
+  
+   
+#> 
 ```
 
 Example 1
