@@ -32,7 +32,7 @@
 mapr <- function(dat, prj, buff) {
 
     # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
-    if (mean(dat$lat) > 0) {
+    if (mean(dat$lat, na.rm = T) > 0) {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
     } else {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -84, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
