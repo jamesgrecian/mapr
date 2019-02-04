@@ -4,9 +4,11 @@
 mapr
 ====
 
-mapr is an R package that makes it easier to make maps in R.
+**mapr** is an R package that makes it easier to make maps in R
 
-Given a set of locations, for example from a tagged animal, mapr will load a global shapefile from the Natural Earth database using rworldmap and manipulate it for plotting using ggplot2 and use in INLA.
+Given a set of locations, for example from a tagged marine animal, the `mapr` function will load a global shapefile from the Natural Earth database using `rworldmap` and manipulate it for plotting using `ggplot2`
+
+Alternatively, given the same set of locations the `meshr` function will help you to create a shapefile that can be used as a boundary when creating an `INLA` mesh using `inla.mesh.2d`
 
 Installation
 ------------
@@ -18,27 +20,27 @@ To download the current development version from GitHub:
 devtools::install_github("jamesgrecian/mapr")
 ```
 
-Example 1
----------
+1. An example map
+-----------------
 
-Here's a quick example of how to generate a plot using the 'mapr' function
+Here's an example of how to generate a map containing a coastline and some animal locations using the `mapr` function alongside the `sf` and `ggplot2` libraries
 
 ``` r
-#load libraries
+#bload libraries
 require(tidyverse)
 require(sf)
 require(mapr)
 
-#load example dataset
+# load example dataset
 data(ellie)
 
-#define an appropriate proj.4 projection
+# define an appropriate proj.4 projection
 prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 
-#use mapr to generate a shapefile
+# use mapr to generate a shapefile
 world_shp <- mapr(ellie, prj, buff = 1e6)
 
-#output a plot using ggplot
+# output a plot using ggplot
 p1 <- ggplot() +
   geom_sf(aes(), data = world_shp) +
   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>% st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
@@ -48,32 +50,34 @@ print(p1)
 
 ![](README-mapr%20example%20with%20ellies-1.png)
 
-Example 2
----------
+2. An example INLA mesh
+-----------------------
 
-Here's a quick example of how to generate an inla mesh using the meshr function
+When using INLA to analyse animal movement data it is useful to base the mesh on the distribution of locations.
+
+Here's an example of how to generate a boundary shapefile using `meshr` that can then be passed to `inla.mesh.2d`, we can plot the mesh using `sf` and `ggplot2`
 
 ``` r
-#load libraries
+# load libraries
 require(tidyverse)
 require(sf)
 require(mapr)
 require(INLA)
 require(inlabru)
 
-#load example dataset
+# load example dataset
 data(ellie)
 
-#define an appropriate proj.4 projection
+# define an appropriate proj.4 projection
 prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 
-#use meshr to generate the boundary
+# use meshr to generate the boundary
 b <- meshr(ellie, prj, buff = 5e5, keep = 0.05, Neumann = T)
 
-#use the meshr boundary to generate the INLA mesh
+# use the boundary to generate the INLA mesh
 mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1e+06), cutoff = 25000, max.n = 1000)
 
-#output a plot using ggplot
+# output a plot using ggplot
 p2 <- ggplot() + 
   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
   inlabru::gg(mesh) +
