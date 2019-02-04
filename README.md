@@ -22,33 +22,6 @@ To download the current development version from GitHub:
 ``` r
 # install.packages("devtools")  
 devtools::install_github("jamesgrecian/mapr")
-#> 
-#>   
-   checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpTfOzzO/remotes21ed44e4a24e/jamesgrecian-mapr-6d238a7/DESCRIPTION’ ...
-  
-✔  checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpTfOzzO/remotes21ed44e4a24e/jamesgrecian-mapr-6d238a7/DESCRIPTION’
-#> 
-  
-─  preparing ‘mapr’:
-#> 
-  
-   checking DESCRIPTION meta-information ...
-  
-✔  checking DESCRIPTION meta-information
-#> 
-  
-─  checking for LF line-endings in source and make files and shell scripts
-#> 
-  
-─  checking for empty or unneeded directories
-#> ─  looking to see if a ‘data/datalist’ file should be added
-#> 
-  
-─  building ‘mapr_0.1.0.tar.gz’
-#> 
-  
-   
-#> 
 ```
 
 ### An example map
@@ -81,8 +54,7 @@ print(p1)
 
 ![](README-mapr%20example%20with%20ellies-1.png)
 
-An example INLA mesh
---------------------
+### An example INLA mesh
 
 When using INLA to analyse animal movement data it is useful to base the mesh on the distribution of locations.
 
@@ -106,7 +78,7 @@ prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_
 b <- meshr(ellie, prj, buff = 5e5, keep = 0.05, Neumann = T)
 
 # use the boundary to generate the INLA mesh
-mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1e+06), cutoff = 25000, max.n = 500)
+mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1e+06), cutoff = 25000, max.n = 1000)
 
 # output a plot using ggplot
 p2 <- ggplot() + 

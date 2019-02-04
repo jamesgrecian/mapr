@@ -68,7 +68,7 @@ print(p1)
 ```
 
 
-## An example INLA mesh
+### An example INLA mesh
 
 When using INLA to analyse animal movement data it is useful to base the mesh on the distribution of locations.  
 
@@ -92,7 +92,7 @@ prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_
 b <- meshr(ellie, prj, buff = 5e5, keep = 0.05, Neumann = T)
 
 # use the boundary to generate the INLA mesh
-mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1e+06), cutoff = 25000, max.n = 500)
+mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1e+06), cutoff = 25000, max.n = 1000)
 
 # output a plot using ggplot
 p2 <- ggplot() + 
