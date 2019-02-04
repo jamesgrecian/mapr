@@ -10,10 +10,6 @@ Given a set of locations, for example from a tagged marine animal, the `mapr` fu
 
 Alternatively, given the same set of locations the `meshr` function will help you to create a shapefile (or nested list of shapefiles) that can be used as a boundary when creating an `INLA` mesh using `inla.mesh.2d`
 
-Given a set of locations, for example from a tagged marine animal, the `mapr` function will load a global shapefile from the Natural Earth database using `rworldmap` and manipulate it for plotting using `ggplot2`
-
-Alternatively, given the same set of locations the `meshr` function will help you to create a shapefile that can be used as a boundary when creating an `INLA` mesh using `inla.mesh.2d`
-
 Installation
 ------------
 
@@ -22,9 +18,37 @@ To download the current development version from GitHub:
 ``` r
 # install.packages("devtools")  
 devtools::install_github("jamesgrecian/mapr")
+#> 
+#>   
+   checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpApjkdh/remotes24f73dca9ed7/jamesgrecian-mapr-2e9bc0f/DESCRIPTION’ ...
+  
+✔  checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpApjkdh/remotes24f73dca9ed7/jamesgrecian-mapr-2e9bc0f/DESCRIPTION’
+#> 
+  
+─  preparing ‘mapr’:
+#> 
+  
+   checking DESCRIPTION meta-information ...
+  
+✔  checking DESCRIPTION meta-information
+#> 
+  
+─  checking for LF line-endings in source and make files and shell scripts
+#> 
+  
+─  checking for empty or unneeded directories
+#> ─  looking to see if a ‘data/datalist’ file should be added
+#> 
+  
+─  building ‘mapr_0.1.0.tar.gz’
+#> 
+  
+   
+#> 
 ```
 
-### An example map
+An example map
+--------------
 
 Here's an example of how to generate a map containing a coastline and some animal locations using the `mapr` function alongside the `sf` and `ggplot2` libraries
 
@@ -54,11 +78,12 @@ print(p1)
 
 ![](README-mapr%20example%20with%20ellies-1.png)
 
-### An example INLA mesh
+An example INLA mesh
+--------------------
 
 When using INLA to analyse animal movement data it is useful to base the mesh on the distribution of locations.
 
-Here's an example of how to generate a boundary shapefile using `meshr` that can then be passed to `inla.mesh.2d`, we can plot the mesh using `sf` and `ggplot2`
+Here's an example of how to generate a boundary shapefile using `meshr` that can then be passed to `inla.mesh.2d`, we can plot the mesh using `inlabru`, `sf` and `ggplot2`
 
 ``` r
 # load libraries
