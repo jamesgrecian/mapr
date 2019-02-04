@@ -18,33 +18,6 @@ To download the current development version from GitHub:
 ``` r
 # install.packages("devtools")  
 devtools::install_github("jamesgrecian/mapr")
-#> 
-#>   
-   checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpApjkdh/remotes24f73dca9ed7/jamesgrecian-mapr-2e9bc0f/DESCRIPTION’ ...
-  
-✔  checking for file ‘/private/var/folders/ys/0d44zxtj55j_kmscgvwr74rw0000gn/T/RtmpApjkdh/remotes24f73dca9ed7/jamesgrecian-mapr-2e9bc0f/DESCRIPTION’
-#> 
-  
-─  preparing ‘mapr’:
-#> 
-  
-   checking DESCRIPTION meta-information ...
-  
-✔  checking DESCRIPTION meta-information
-#> 
-  
-─  checking for LF line-endings in source and make files and shell scripts
-#> 
-  
-─  checking for empty or unneeded directories
-#> ─  looking to see if a ‘data/datalist’ file should be added
-#> 
-  
-─  building ‘mapr_0.1.0.tar.gz’
-#> 
-  
-   
-#> 
 ```
 
 An example map
