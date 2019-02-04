@@ -12,7 +12,7 @@ meshr(dat, prj, buff, keep, Neumann = TRUE)
 \item{prj}{a PROJ.4 compatable projection for the region of interest *NOT*
 WGS84}
 
-\item{buff}{a buffer to expand region of interest specified in metres}
+\item{buff}{a buffer to expand region of interest (specified in metres)}
 
 \item{keep}{the proportion of points to be retained - passed to rmapshaper::ms_simplify}
 
@@ -23,10 +23,24 @@ FALSE - returns a single object defining the coastline}
 a list containing an inla mesh boundary for the region of interest
 }
 \description{
-Generate an inla mesh nested boundary for a region of interest
-specified by telemetry data
+Generate a boundary for a marine region of interest specified by telemetry data
+that can then be passed to `inla.mesh.2d`. The size of the area, complexity
+of the boundary and projection can be easily adjusted.
 }
 \details{
+It may be useful to specify whether you want a Neumann boundary condition that
+either allows or prevents estimation on land:
+
+When Neumann = T the output of the meshr function is a list of spatial polygons.
+This list can then be passed to the inla.mesh.2d function and is ordered so
+that the Neumann condition is placed on the coastline, and there are no mesh
+nodes on land. This could be useful if you wanted to prevent any estimation on land at all.
+
+When Neumann = F the output of meshr is a single spatial polygon object
+containing the area of interest. When this object is then passed to inla.mesh.2d
+the Neumann condition is placed on the buffer region not the coastline. This allows
+mesh nodes on land to be identified and passed to the Haakon barrier model.
+
 The telemetry data is given as a dataframe where each row is an observed
 location and columns \describe{ \item{'id'}{individual animal identifier,}
 \item{'date'}{observation time (POSIXct, GMT),} \item{'lon'}{observed
@@ -46,7 +60,11 @@ prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_
 
 b <- meshr(ellie, prj, buff = 5e5, keep = 0.02)
 
-mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1000000), cutoff = 25000, max.n = 1000)
+mesh = inla.mesh.2d(boundary = b,
+  max.edge = c(250000, 1000000),
+  cutoff = 25000,
+  max.n = 1000,
+  crs = CRS(prj))
 
 ggplot() +
   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +

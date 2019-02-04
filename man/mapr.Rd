@@ -12,7 +12,7 @@ mapr(dat, prj, buff)
 \item{prj}{a PROJ.4 compatable projection for the region of interest *NOT*
 WGS84}
 
-\item{buff}{a buffer to expand region of interest specified in metres}
+\item{buff}{a buffer to expand region of interest (specified in metres)}
 }
 \value{
 \item{\code{world_shp}}{a projected shapefile for the region of

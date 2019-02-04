@@ -11,7 +11,7 @@
 ##' @param dat a data frame of observations (see details)
 ##' @param prj a PROJ.4 compatable projection for the region of interest *NOT*
 ##'   WGS84
-##' @param buff a buffer to expand region of interest specified in metres
+##' @param buff a buffer to expand region of interest (specified in metres)
 ##' @return \item{\code{world_shp}}{a projected shapefile for the region of
 ##' interest}
 ##' @examples

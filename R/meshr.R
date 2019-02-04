@@ -1,5 +1,19 @@
-##' Generate an inla mesh nested boundary for a region of interest
-##' specified by telemetry data
+##' Generate a boundary for a marine region of interest specified by telemetry data
+##' that can then be passed to `inla.mesh.2d`. The size of the area, complexity
+##' of the boundary and projection can be easily adjusted.
+##'
+##' It may be useful to specify whether you want a Neumann boundary condition that
+##' either allows or prevents estimation on land:
+##'
+##' When Neumann = T the output of the meshr function is a list of spatial polygons.
+##' This list can then be passed to the inla.mesh.2d function and is ordered so
+##' that the Neumann condition is placed on the coastline, and there are no mesh
+##' nodes on land. This could be useful if you wanted to prevent any estimation on land at all.
+##'
+##' When Neumann = F the output of meshr is a single spatial polygon object
+##' containing the area of interest. When this object is then passed to inla.mesh.2d
+##' the Neumann condition is placed on the buffer region not the coastline. This allows
+##' mesh nodes on land to be identified and passed to the Haakon barrier model.
 ##'
 ##' The telemetry data is given as a dataframe where each row is an observed
 ##' location and columns \describe{ \item{'id'}{individual animal identifier,}
@@ -11,7 +25,7 @@
 ##' @param dat a data frame of observations (see details)
 ##' @param prj a PROJ.4 compatable projection for the region of interest *NOT*
 ##'   WGS84
-##' @param buff a buffer to expand region of interest specified in metres
+##' @param buff a buffer to expand region of interest (specified in metres)
 ##' @param keep the proportion of points to be retained - passed to rmapshaper::ms_simplify
 ##' @param Neumann TRUE - returns a list to allow a Neumann boundary to be implemented \cr
 ##' FALSE - returns a single object defining the coastline
@@ -29,7 +43,11 @@
 ##'
 ##' b <- meshr(ellie, prj, buff = 5e5, keep = 0.02)
 ##'
-##' mesh = inla.mesh.2d(boundary = b, max.edge = c(250000, 1000000), cutoff = 25000, max.n = 1000)
+##' mesh = inla.mesh.2d(boundary = b,
+##'   max.edge = c(250000, 1000000),
+##'   cutoff = 25000,
+##'   max.n = 1000,
+##'   crs = CRS(prj))
 ##'
 ##' ggplot() +
 ##'   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
@@ -46,7 +64,7 @@ meshr <- function(dat,
                   Neumann = TRUE) {
 
     # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
-    if (mean(dat$lat) > 0) {
+  if (mean(dat$lat, na.rm = T) > 0) {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
     } else {
         CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -90, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
