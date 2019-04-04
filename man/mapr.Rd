@@ -10,24 +10,25 @@ mapr(dat, prj, buff)
 \item{dat}{a data frame of observations (see details)}
 
 \item{prj}{a PROJ.4 compatable projection for the region of interest *NOT*
-WGS84}
+WGS84. If dat inherits sf this will be scraped from the dataframe}
 
-\item{buff}{a buffer to expand region of interest (specified in metres)}
+\item{buff}{a buffer to expand region of interest (specified in metres) DEFAULT
+is 1e6 m (1000 km)}
 }
 \value{
 \item{\code{world_shp}}{a projected shapefile for the region of
-interest}
+interest taken from Andy South's rworldmap package }
 }
 \description{
 Generate a land shapefile for a region of interest specified by telemetry
 data
 }
 \details{
-The telemetry data is given as a dataframe where each row is an observed
-location and columns \describe{ \item{'id'}{individual animal identifier,}
-\item{'date'}{observation time (POSIXct, GMT),} \item{'lon'}{observed
-longitude,} \item{'lat'}{observed latitude,} \item{'...'}{other columns
-will be ignored} }
+Telemetry data is given either as an sf dataframe, or a tibble where each row
+is an observed location and columns \describe{ \item{'id'}{individual animal
+identifier,}\item{'date'}{observation time (POSIXct, GMT),} \item{'lon'}
+{observed longitude,} \item{'lat'}{observed latitude,} \item{'...'}{other
+columns will be ignored} }
 }
 \examples{
 \dontrun{
