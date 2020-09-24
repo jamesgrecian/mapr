@@ -70,7 +70,7 @@ mapr <- function(dat, prj, buff) {
   # Load in shapefile from rworldmap, clip to north or south and project
   world_shp <- sf::st_as_sf(rworldmap::countriesLow)
   suppressWarnings(
-    world_shp <- sf::st_crop(world_shp, CP)
+    world_shp <- sf::st_crop(sf::st_buffer(world_shp, 0), CP)
     )
   world_shp <- sf::st_transform(world_shp, prj) %>% sf::st_buffer(0)
 
