@@ -69,7 +69,7 @@ mesh = inla.mesh.2d(boundary = b,
 ggplot() +
   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
   inlabru::gg(mesh) +
-  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) \%>\%
+  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 }
 }

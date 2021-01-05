@@ -40,7 +40,7 @@ world_shp <- mapr(ellie, prj, buff = 1e6)
 
 ggplot() +
   geom_sf(aes(), data = world_shp) +
-  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) \%>\%
+  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
       st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 }
 }
