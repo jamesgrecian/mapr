@@ -9,7 +9,7 @@ meshr(dat, prj, buff, keep, Neumann = TRUE)
 \arguments{
 \item{dat}{a data frame of observations (see details)}
 
-\item{prj}{a PROJ.4 compatable projection for the region of interest *NOT*
+\item{prj}{a PROJ.4 compatable projection for the region of interest \emph{NOT}
 WGS84}
 
 \item{buff}{a buffer to expand region of interest (specified in metres)}
@@ -24,7 +24,7 @@ a list containing an inla mesh boundary for the region of interest
 }
 \description{
 Generate a boundary for a marine region of interest specified by telemetry data
-that can then be passed to `inla.mesh.2d`. The size of the area, complexity
+that can then be passed to \code{inla.mesh.2d}. The size of the area, complexity
 of the boundary and projection can be easily adjusted.
 }
 \details{
@@ -69,7 +69,7 @@ mesh = inla.mesh.2d(boundary = b,
 ggplot() +
   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
   inlabru::gg(mesh) +
-  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
+  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) |>
     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 }
 }

@@ -52,10 +52,9 @@
 ##' ggplot() +
 ##'   geom_sf(aes(), data = mapr(ellie, prj, buff = 1e6)) +
 ##'   inlabru::gg(mesh) +
-##'   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
+##'   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) |>
 ##'     st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
 ##' }
-##' @importFrom dplyr %>%
 ##' @export
 meshr <- function(dat,
                   prj,
@@ -65,9 +64,9 @@ meshr <- function(dat,
 
     # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
   if (mean(dat$lat, na.rm = T) > 0) {
-        CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
+        CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") |> sf::st_as_sfc()
     } else {
-        CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -90, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
+        CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -90, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") |> sf::st_as_sfc()
     }
 
     # load in shapefile from rworldmap, clip to north or south and project
@@ -76,16 +75,16 @@ meshr <- function(dat,
     suppressWarnings(
       world_shp <- sf::st_crop(sf::st_buffer(world_shp, 0), CP)
       )
-    world_shp <- sf::st_transform(world_shp, prj) %>% sf::st_buffer(0)
+    world_shp <- sf::st_transform(world_shp, prj) |> sf::st_buffer(0)
 
     # convert data to sf and project
-    dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) %>% sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_transform(prj)
+    dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) |> sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") |> sf::st_transform(prj)
 
     # create area of interest from convex hull around data with buffer
-    sf_poly <- sf::st_convex_hull(sf::st_union(dat_sf)) %>% sf::st_buffer(buff)
+    sf_poly <- sf::st_convex_hull(sf::st_union(dat_sf)) |> sf::st_buffer(buff)
 
     # create padding area for inla mesh
-    sf_poly_buff <- sf_poly %>% sf::st_buffer(buff)
+    sf_poly_buff <- sf_poly |> sf::st_buffer(buff)
 
     # crop world shape to area of interest
     world_shp <- sf::st_intersection(world_shp, sf_poly_buff)

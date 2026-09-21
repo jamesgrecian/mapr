@@ -4,43 +4,66 @@
 \alias{mapr}
 \title{mapr}
 \usage{
-mapr(dat, prj, buff)
+mapr(dat, prj, buff = 1e+06, scale = c("medium", "small", "large"))
 }
 \arguments{
-\item{dat}{a data frame of observations (see details)}
+\item{dat}{an \code{sf} object, or a data frame with \code{lon} and \code{lat} columns
+(see details)}
 
-\item{prj}{a PROJ.4 compatable projection for the region of interest *NOT*
-WGS84. If dat inherits sf this will be scraped from the dataframe}
+\item{prj}{a projection for the region of interest, as anything
+\code{\link[sf:st_crs]{sf::st_crs()}} accepts: an EPSG code, a WKT string or a PROJ string.
+Should be projected, \emph{NOT} WGS84. If \code{dat} inherits \code{sf} and \code{prj} is
+missing, the CRS of \code{dat} is used instead.}
 
-\item{buff}{a buffer to expand region of interest (specified in metres) DEFAULT
-is 1e6 m (1000 km)}
+\item{buff}{a buffer expanding the region of interest beyond the locations
+themselves, in metres. Defaults to 1e6 (1000 km).}
+
+\item{scale}{resolution of the Natural Earth coastline, one of \code{"medium"}
+(1:50m, the default), \code{"small"} (1:110m) or \code{"large"} (1:10m). The
+\code{"large"} scale needs the separate \code{rnaturalearthhires} data package,
+which is not on CRAN:
+\code{install.packages("rnaturalearthhires", repos = "https://ropensci.r-universe.dev")}}
 }
 \value{
-\item{\code{world_shp}}{a projected shapefile for the region of
-interest taken from Andy South's rworldmap package }
+an \code{sf} object of land polygons, cropped to the buffered extent of
+\code{dat} and projected to \code{prj}.
 }
 \description{
 Generate a land shapefile for a region of interest specified by telemetry
 data
 }
 \details{
-Telemetry data is given either as an sf dataframe, or a tibble where each row
-is an observed location and columns \describe{ \item{'id'}{individual animal
-identifier,}\item{'date'}{observation time (POSIXct, GMT),} \item{'lon'}
-{observed longitude,} \item{'lat'}{observed latitude,} \item{'...'}{other
-columns will be ignored} }
+Telemetry data is given either as an \code{sf} object, or as a data frame where
+each row is an observed location, with columns \describe{
+\item{\code{lon}}{observed longitude in decimal degrees,}
+\item{\code{lat}}{observed latitude in decimal degrees,}
+\item{\code{...}}{other columns are ignored} }
+
+Land polygons come from the Natural Earth database via
+\code{\link[rnaturalearth:ne_countries]{rnaturalearth::ne_countries()}}. Choose \code{scale} to suit the extent you are
+mapping: \code{"small"} is adequate for an ocean basin and visibly blocky over a
+coastline, \code{"large"} is unnecessarily detailed for anything wider than a
+few hundred kilometres and slow to draw.
+
+The map is clipped to one hemisphere before projecting, chosen from the
+mean latitude of \code{dat}, since a projection suited to one pole distorts the
+other beyond use. Data straddling the equator will therefore lose part of
+the opposite hemisphere.
 }
 \examples{
-\dontrun{
-require(tidyverse)
-require(sf)
 data(ellie)
-prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
+
+prj <- "+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m"
 world_shp <- mapr(ellie, prj, buff = 1e6)
 
+\dontrun{
+library(sf)
+library(ggplot2)
+
+ellie_sf <- st_as_sf(ellie, coords = c("lon", "lat"), crs = 4326)
+
 ggplot() +
-  geom_sf(aes(), data = world_shp) +
-  geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
-      st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+  geom_sf(data = world_shp) +
+  geom_sf(data = ellie_sf, size = 0.4)
 }
 }

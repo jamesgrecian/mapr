@@ -4,7 +4,9 @@
 \name{ellie}
 \alias{ellie}
 \title{Elephant seal Argos satellite data (2 individuals)}
-\format{.RData}
+\format{
+.RData
+}
 \usage{
 ellie
 }

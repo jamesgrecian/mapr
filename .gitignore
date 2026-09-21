@@ -1,6 +1,9 @@
 .Rproj.user
 .Rhistory
 .Ruserdata
+.DS_Store
 packrat/lib*/
 README.Rmd
 script.r
+docs/
+.DS_Store

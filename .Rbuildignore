@@ -4,3 +4,6 @@
 ^README-.*\.png$
 ^packrat/
 ^\.Rprofile$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

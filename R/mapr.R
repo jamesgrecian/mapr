@@ -1,95 +1,143 @@
 ##' Generate a land shapefile for a region of interest specified by telemetry
 ##' data
 ##'
-##' Telemetry data is given either as an sf dataframe, or a tibble where each row
-##' is an observed location and columns \describe{ \item{'id'}{individual animal
-##' identifier,}\item{'date'}{observation time (POSIXct, GMT),} \item{'lon'}
-##' {observed longitude,} \item{'lat'}{observed latitude,} \item{'...'}{other
-##' columns will be ignored} }
+##' Telemetry data is given either as an `sf` object, or as a data frame where
+##' each row is an observed location, with columns \describe{
+##'   \item{`lon`}{observed longitude in decimal degrees,}
+##'   \item{`lat`}{observed latitude in decimal degrees,}
+##'   \item{`...`}{other columns are ignored} }
+##'
+##' Land polygons come from the Natural Earth database via
+##' [rnaturalearth::ne_countries()]. Choose `scale` to suit the extent you are
+##' mapping: `"small"` is adequate for an ocean basin and visibly blocky over a
+##' coastline, `"large"` is unnecessarily detailed for anything wider than a
+##' few hundred kilometres and slow to draw.
+##'
+##' The map is clipped to one hemisphere before projecting, chosen from the
+##' mean latitude of `dat`, since a projection suited to one pole distorts the
+##' other beyond use. Data straddling the equator will therefore lose part of
+##' the opposite hemisphere.
 ##'
 ##' @title mapr
-##' @param dat a data frame of observations (see details)
-##' @param prj a PROJ.4 compatable projection for the region of interest *NOT*
-##'   WGS84. If dat inherits sf this will be scraped from the dataframe
-##' @param buff a buffer to expand region of interest (specified in metres) DEFAULT
-##' is 1e6 m (1000 km)
-##' @return \item{\code{world_shp}}{a projected shapefile for the region of
-##' interest taken from Andy South's rworldmap package }
+##' @param dat an `sf` object, or a data frame with `lon` and `lat` columns
+##'   (see details)
+##' @param prj a projection for the region of interest, as anything
+##'   [sf::st_crs()] accepts: an EPSG code, a WKT string or a PROJ string.
+##'   Should be projected, *NOT* WGS84. If `dat` inherits `sf` and `prj` is
+##'   missing, the CRS of `dat` is used instead.
+##' @param buff a buffer expanding the region of interest beyond the locations
+##'   themselves, in metres. Defaults to 1e6 (1000 km).
+##' @param scale resolution of the Natural Earth coastline, one of `"medium"`
+##'   (1:50m, the default), `"small"` (1:110m) or `"large"` (1:10m). The
+##'   `"large"` scale needs the separate `rnaturalearthhires` data package,
+##'   which is not on CRAN:
+##'   `install.packages("rnaturalearthhires", repos = "https://ropensci.r-universe.dev")`
+##' @return an `sf` object of land polygons, cropped to the buffered extent of
+##'   `dat` and projected to `prj`.
 ##' @examples
-##' \dontrun{
-##' require(tidyverse)
-##' require(sf)
 ##' data(ellie)
-##' prj <- '+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
+##'
+##' prj <- "+proj=laea +lat_0=-60 +lon_0=70 +x_0=0 +y_0=0 +datum=WGS84 +units=m"
 ##' world_shp <- mapr(ellie, prj, buff = 1e6)
 ##'
+##' \dontrun{
+##' library(sf)
+##' library(ggplot2)
+##'
+##' ellie_sf <- st_as_sf(ellie, coords = c("lon", "lat"), crs = 4326)
+##'
 ##' ggplot() +
-##'   geom_sf(aes(), data = world_shp) +
-##'   geom_sf(aes(), data = st_as_sf(ellie, coords = c('lon', 'lat')) %>%
-##'       st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
-##'}
-##' @importFrom dplyr %>%
+##'   geom_sf(data = world_shp) +
+##'   geom_sf(data = ellie_sf, size = 0.4)
+##' }
 ##' @export
-mapr <- function(dat, prj, buff) {
+mapr <- function(dat, prj, buff = 1e6, scale = c("medium", "small", "large")) {
 
-  # Scrape the projection from the dataframe if available
-  if(inherits(dat, "sf")){
-    prj <- sf::st_crs(dat)
-  }
-  if(missing(prj)){
-    stop("Missing projection")
+  scale <- match.arg(scale)
+
+  # This function was written for planar geometry on lon/lat data, which is
+  # what sf used before version 1.0. Switch the s2 spherical engine off for
+  # the duration, and put the user's own setting back when the function
+  # exits, whether it succeeds or fails.
+  old_s2 <- suppressMessages(sf::sf_use_s2(FALSE))
+  on.exit(suppressMessages(sf::sf_use_s2(old_s2)), add = TRUE)
+
+  if (scale == "large" && !requireNamespace("rnaturalearthhires", quietly = TRUE)) {
+    stop("scale = \"large\" needs the rnaturalearthhires package:\n",
+         "  install.packages(\"rnaturalearthhires\", ",
+         "repos = \"https://ropensci.r-universe.dev\")",
+         call. = FALSE)
   }
 
-  # Set default buffer to 1000 km if missing
-  if(missing(buff)){
-    buff <- 1e6
+  # Projection: use the one supplied, or fall back to the CRS of an sf input.
+  # Note this differs from earlier versions, which always took the CRS from an
+  # sf object and so silently ignored a projection the user had asked for.
+  if (missing(prj)) {
+    if (inherits(dat, "sf")) {
+      prj <- sf::st_crs(dat)
+    } else {
+      stop("Missing projection.", call. = FALSE)
+    }
+  }
+  if (is.na(sf::st_crs(prj))) {
+    stop("`prj` is not a coordinate reference system sf recognises.",
+         call. = FALSE)
   }
 
-  # Convert data to sf if required
-  # Extract mean latitude to determine hemisphere of study
-  if(inherits(dat, "sf")){
+  # Coerce to sf, in WGS84, so the hemisphere test is always in degrees
+  if (inherits(dat, "sf")) {
+    if (is.na(sf::st_crs(dat))) {
+      stop("`dat` has no coordinate reference system. If the coordinates are ",
+           "longitude and latitude, set it with sf::st_crs(dat) <- 4326.",
+           call. = FALSE)
+    }
     dat_sf <- dat
-    mean_lat <- dat_sf %>% sf::st_transform("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_coordinates() %>% dplyr::as_tibble() %>% dplyr::summarise(mean(Y))
-  }
-  else {
-    # Convert data to sf. Extract mean lat. Then project
-    dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat")) %>%
-      sf::st_set_crs("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    mean_lat <- dat_sf %>% sf::st_coordinates() %>% dplyr::as_tibble() %>% dplyr::summarise(mean(Y))
-    dat_sf <- dat_sf %>% sf::st_transform(prj)
-  }
-
-  # Clip the map to either the Northern or Southern hemisphere
-  # if the mean lat is +ve then clip to northern hemisphere if the mean lat is -ve then clip to southern hemisphere
-  if (mean_lat > 0) {
-    CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -10, ymax = 90), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
   } else {
-    CP <- sf::st_bbox(c(xmin = -180, xmax = 180, ymin = -84, ymax = 10), crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") %>% sf::st_as_sfc()
+    if (!all(c("lon", "lat") %in% names(dat))) {
+      stop("`dat` must be an sf object, or have columns named `lon` and `lat`.",
+           call. = FALSE)
+    }
+    dat_sf <- sf::st_as_sf(dat, coords = c("lon", "lat"), crs = 4326)
   }
 
-  # Load in shapefile from rworldmap, clip to north or south and project
-  world_shp <- sf::st_as_sf(rworldmap::countriesLow)
-  suppressWarnings(
-    world_shp <- sf::st_crop(sf::st_buffer(world_shp, 0), CP)
-    )
-  world_shp <- sf::st_transform(world_shp, prj) %>% sf::st_buffer(0)
+  mean_lat <- mean(sf::st_coordinates(sf::st_transform(dat_sf, 4326))[, "Y"])
 
-  # Create clip shape for world map based on bounding box and buffer size
-  CP <- sf::st_bbox(dat_sf) %>%
-    sf::st_as_sfc() %>%
-    sf::st_buffer(buff) %>%
-    sf::st_segmentize(1000)
+  dat_sf <- sf::st_transform(dat_sf, prj)
 
-  # Load in world shape from rworldmap and clip
-  suppressWarnings(
-    world_shp <- sf::st_crop(world_shp, CP) %>% sf::st_buffer(0)
-  )
-  CP <- sf::st_bbox(sf::st_buffer(dat_sf, buff))
-  suppressWarnings(
-    world_shp <- sf::st_intersection(world_shp, sf::st_as_sfc(CP))
-  )
+  # Clip the world to the hemisphere the animals are in, with a little overlap
+  # across the equator
+  if (mean_lat > 0) {
+    hemisphere <- c(xmin = -180, xmax = 180, ymin = -10, ymax = 90)
+  } else {
+    hemisphere <- c(xmin = -180, xmax = 180, ymin = -84, ymax = 10)
+  }
+  hemisphere <- sf::st_as_sfc(sf::st_bbox(hemisphere, crs = 4326))
 
-  # Output the shapefile
-  return(world_shp)
+  world_shp <- rnaturalearth::ne_countries(scale = scale, returnclass = "sf")
 
+  # Declaring attributes constant stops st_crop() and st_intersection()
+  # warning that they are "assumed to be spatially constant", without
+  # suppressing any other warning.
+  sf::st_agr(world_shp) <- "constant"
+
+  # Crop to the hemisphere in lon/lat, then project
+  world_shp <- sf::st_make_valid(world_shp)
+  world_shp <- sf::st_crop(world_shp, hemisphere)
+
+  world_shp <- sf::st_make_valid(sf::st_transform(world_shp, prj))
+  sf::st_agr(world_shp) <- "constant"
+
+  # Region of interest: the extent of the locations, buffered. Segmentized so
+  # that the edges stay curved when the polygon is drawn in a projection.
+  roi <- sf::st_buffer(sf::st_as_sfc(sf::st_bbox(dat_sf)), buff)
+  roi <- sf::st_segmentize(roi, 1000)
+
+  world_shp <- sf::st_make_valid(sf::st_crop(world_shp, roi))
+  sf::st_agr(world_shp) <- "constant"
+
+  # Square off the rounded corners left by the buffer
+  box <- sf::st_as_sfc(sf::st_bbox(sf::st_buffer(dat_sf, buff)))
+  world_shp <- sf::st_intersection(world_shp, box)
+
+  world_shp
 }
