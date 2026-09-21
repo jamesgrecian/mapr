@@ -6,3 +6,4 @@ packrat/lib*/
 script.r
 docs/
 *.Rcheck/
+docs

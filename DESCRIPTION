@@ -10,7 +10,7 @@ Description: Tools for making clean, projected maps in R. Generates land
     limits) that turns a projected plot into a finished map. Coastlines
     come from the Natural Earth database via the rnaturalearth package.
 License: GPL-2
-URL: https://github.com/jamesgrecian/mapr
+URL: https://github.com/jamesgrecian/mapr, https://jamesgrecian.github.io/mapr/
 BugReports: https://github.com/jamesgrecian/mapr/issues
 Depends:
     R (>= 4.1.0)
