@@ -21,19 +21,18 @@ make_map_furniture(
 \code{xmin} must be less than \code{xmax}; boxes crossing the antimeridian are not
 supported.}
 
-\item{crs}{Target coordinate reference system, passed to
-\code{\link[sf:st_transform]{sf::st_transform()}}. Assumed to be projected with metres as its unit.
-See \code{help("projections")} for choosing one.}
+\item{crs}{Target projection, as anything \code{\link[sf:st_transform]{sf::st_transform()}} accepts: an
+EPSG code or a PROJ string. Should be projected, with metres as its unit,
+and the same projection you use for \code{\link[=mapr]{mapr()}} and \code{\link[ggplot2:ggsf]{ggplot2::coord_sf()}}.}
 
-\item{buffer}{Numeric. Margin around the extent on all sides, in CRS units.
-This is the white space the graticule labels are written into. Defaults to
-500000 (500 km), which suits flyway-scale maps; for a North Sea extent try
-25000 to 50000, and for a single colony a few thousand.}
+\item{buffer}{Numeric. Margin around the frame on all sides, in metres. This
+is the white space the graticule labels are written into, so it needs to
+be wide enough to hold them. Defaults to 500000 (500 km), which suits an
+ocean basin; for a North Sea map around 200000 works well.}
 
-\item{lat_by, lon_by}{Numeric. Spacing of parallel and meridian labels in
-degrees. Label positions snap to multiples of these values falling inside
-the extent, so \code{lat_by = 2} on a 51 to 62 degree extent labels 52, 54, 56,
-58, 60 and 62.}
+\item{lat_by, lon_by}{Numeric. Spacing of the graticules and their labels in
+degrees. Positions snap to multiples of these values falling inside the
+extent, so \code{lat_by = 5} on a 50 to 62 degree extent gives 50, 55 and 60.}
 
 \item{densify}{Numeric. Maximum segment length in \strong{degrees} used when
 densifying the bounding box, passed to \code{\link[sf:geos_unary]{sf::st_segmentize()}}. Smaller
@@ -42,16 +41,18 @@ values give smoother curved edges at the cost of more vertices.}
 \value{
 A named list with components:
 \describe{
-\item{flyway_wgs84}{\code{sfc} polygon of the densified extent in EPSG:4326.}
+\item{flyway_wgs84}{\code{sfc} polygon of the densified frame in EPSG:4326.}
 \item{flyway}{The same polygon transformed to \code{crs}. Draw it with
 \code{fill = NA} for a border around the map.}
-\item{cookie}{\code{sfc} polygon covering the buffered extent with the map
+\item{cookie}{\code{sfc} polygon covering the buffered frame with the map
 extent punched out. Draw it filled white, after your data layers and
 before the labels.}
 \item{parallels}{\code{sf} points along the western edge, with columns \code{lat},
-\code{lon} and \code{label}.}
+\code{lon} and \code{label}. Pass \code{lat} to \code{\link[ggplot2:scale_continuous]{ggplot2::scale_y_continuous()}} as
+\code{breaks} to draw matching graticules.}
 \item{meridians}{\code{sf} points along the southern edge, with columns \code{lat},
-\code{lon} and \code{label}.}
+\code{lon} and \code{label}. Pass \code{lon} to \code{\link[ggplot2:scale_continuous]{ggplot2::scale_x_continuous()}} as
+\code{breaks} to draw matching graticules.}
 \item{xlim, ylim}{Length-2 numeric vectors in CRS units, for
 \code{\link[ggplot2:ggsf]{ggplot2::coord_sf()}}.}
 }
@@ -65,89 +66,66 @@ write the rest of the map as an ordinary \code{ggplot()} call:
 \item a \strong{cookie-cutter mask}, a rectangle with your map extent punched
 out of it. Drawn in white over the top of your data layers, it hides
 anything spilling past the edge of the map and leaves a clean margin.
-\item \strong{graticule label positions} along the western and southern edges,
-already formatted as \code{"56\\u00b0N"}, \code{"4\\u00b0W"} and so on.
+\item \strong{graticule positions and labels} along the western and southern
+edges, already formatted as \code{"55\\u00b0N"}, \code{"5\\u00b0W"} and so on.
 \item \strong{plot limits in projected units}, ready to pass straight to
 \code{\link[ggplot2:ggsf]{ggplot2::coord_sf()}}.
 }
 
 The bounding box is densified in geographic coordinates before projection,
-so the edges of the map follow curved graticules rather than straight lines
-in the target projection. Over a wide extent this is obvious; over the North
-Sea it is slight but harmless.
+so the edges of the map follow the curved graticules rather than straight
+lines in the target projection.
 
-See the examples below for a complete map, and \code{help("projections")} if
-coordinate reference systems are new to you.
+Use it alongside \code{\link[=mapr]{mapr()}}, which supplies the land. The land needs to reach
+past the frame on every side, since the cookie hides anything beyond it.
+See \code{vignette("mapr")} for a step-by-step guide to building a map.
 }
 \examples{
-# A Lambert azimuthal equal-area projection centred on the North Sea.
-# Equal-area is the safe default when areas and overlaps matter.
-laea <- "+proj=laea +lat_0=56 +lon_0=2 +datum=WGS84 +units=m"
+prj <- "+proj=utm +zone=30 +datum=WGS84 +units=m +no_defs"
 
 mf <- make_map_furniture(
-  xmin = -6, xmax = 9, ymin = 51, ymax = 62,
-  crs = laea,
-  buffer = 30000,   # 30 km margin for the labels
-  lat_by = 2,       # label every 2 degrees of latitude
-  lon_by = 4        # and every 4 of longitude
+  xmin = -7.5, xmax = 10, ymin = 50, ymax = 62,
+  crs = prj,
+  buffer = 200000,
+  lat_by = 5,
+  lon_by = 5
 )
 
 # Plot limits, in metres, because the projection is in metres
 mf$xlim
 
-# The labels it worked out for you
+# The graticule labels
 mf$parallels$label
 mf$meridians$label
 
-\dontrun{
-# ---------------------------------------------------------------------
-# A complete map. Land from Natural Earth, your own tracks and wind farms.
-# ---------------------------------------------------------------------
+\donttest{
 library(sf)
 library(ggplot2)
 
-# 1. Coastline. Crop in lon/lat first, then project: cropping a whole-world
-#    layer after projecting is slow and can throw geometry errors.
-land <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
-land <- st_crop(land, c(xmin = -12, ymin = 48, xmax = 16, ymax = 66))
-land <- st_transform(land, laea)
+data(gannets)
+gannets_sf <- st_as_sf(gannets, coords = c("lon", "lat"), crs = 4326)
+land <- mapr(gannets, prj, buff = 400000)
 
-# 2. Your data. Longitude goes first in coords, and you must say which CRS
-#    the numbers are in: GPS and Argos data is almost always EPSG:4326.
-d <- read.csv("tracks.csv")
-tracks <- st_as_sf(d, coords = c("lon", "lat"), crs = 4326)
-
-# A shapefile or geopackage carries its own CRS, so just read it
-windfarms <- st_read("windfarms.shp")
-
-# Note there is no st_transform() on these two. coord_sf() reprojects every
-# layer on the fly, so layers in different CRSs still line up. You only need
-# to transform by hand when you are measuring something.
-
-# 3. Draw it. Layer order matters: data, then the mask, then the labels.
+# Layer order matters: land and data, then the cookie, then the frame,
+# then the labels
 ggplot() +
-  geom_sf(data = land, fill = "grey90", colour = "grey50", linewidth = 0.2) +
-  geom_sf(data = windfarms, fill = "steelblue", colour = NA, alpha = 0.6) +
-  geom_sf(data = tracks, aes(colour = id), linewidth = 0.3, show.legend = FALSE) +
+  theme_minimal(base_size = 8) +
+  geom_sf(data = land, fill = "grey85", colour = "grey60", linewidth = 0.2) +
+  geom_sf(data = gannets_sf, aes(colour = id), size = 0.1,
+          show.legend = FALSE) +
   geom_sf(data = mf$cookie, fill = "white", colour = NA) +
-  geom_sf(data = mf$flyway, fill = NA, colour = "black", linewidth = 0.3) +
-  geom_sf_text(data = mf$parallels, aes(label = label), hjust = 1.3, size = 3) +
-  geom_sf_text(data = mf$meridians, aes(label = label), vjust = 1.8, size = 3) +
-  coord_sf(xlim = mf$xlim, ylim = mf$ylim, crs = laea, expand = FALSE) +
-  theme_bw() +
-  theme(
-    axis.title = element_blank(),
-    axis.text = element_blank(),
-    axis.ticks = element_blank(),
-    panel.border = element_blank(),
-    panel.grid = element_line(colour = "grey85", linewidth = 0.2)
-  )
-
-# Things to try from here:
-#   - move the colony marker on with another geom_sf()
-#   - facet by year with facet_wrap(~ year)
-#   - swap laea for "+proj=laea +lat_0=58 +lon_0=-3 ..." to centre on Moray
-#   - ggsave("map.png", width = 7, height = 8, dpi = 300)
+  geom_sf(data = mf$flyway, fill = NA, linewidth = 0.3) +
+  scale_x_continuous(breaks = mf$meridians$lon) +
+  scale_y_continuous(breaks = mf$parallels$lat) +
+  coord_sf(xlim = mf$xlim, ylim = mf$ylim, crs = prj, expand = FALSE) +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank()) +
+  geom_sf_text(data = mf$parallels, aes(label = label),
+               size = 2.5, colour = "grey40",
+               nudge_x = -15000, hjust = 1) +
+  geom_sf_text(data = mf$meridians, aes(label = label),
+               size = 2.5, colour = "grey40",
+               nudge_y = -15000, vjust = 1)
 }
 
 }

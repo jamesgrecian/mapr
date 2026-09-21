@@ -5,9 +5,10 @@ Authors@R: person("James", "Grecian", email = "james.grecian@gmail.com",
   role = c("aut", "cre"))
 Description: Tools for making clean, projected maps in R. Generates land
     polygons for a region of interest defined by animal tracking data,
-    cropped, buffered and projected ready for plotting with ggplot2.
-    Coastlines come from the Natural Earth database via the rnaturalearth
-    package.
+    cropped, buffered and projected ready for plotting with ggplot2, and
+    builds the map furniture (a masking frame, graticule labels and plot
+    limits) that turns a projected plot into a finished map. Coastlines
+    come from the Natural Earth database via the rnaturalearth package.
 License: GPL-2
 URL: https://github.com/jamesgrecian/mapr
 BugReports: https://github.com/jamesgrecian/mapr/issues
@@ -19,11 +20,15 @@ Imports:
     rnaturalearthdata,
     rworldmap,
     sf (>= 1.0.0),
-    sp
+    sp,
+    tibble
 Suggests:
     ggplot2,
+    knitr,
+    rmarkdown,
     rnaturalearthhires,
     testthat
+VignetteBuilder: knitr
 Additional_repositories: https://ropensci.r-universe.dev
 Encoding: UTF-8
 LazyData: true

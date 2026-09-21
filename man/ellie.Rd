@@ -5,7 +5,14 @@
 \alias{ellie}
 \title{Elephant seal Argos satellite data (2 individuals)}
 \format{
-.RData
+A tibble with 709 rows and 5 columns:
+\describe{
+\item{id}{individual identifier}
+\item{date}{time of fix, POSIXct in UTC}
+\item{lc}{Argos location class, from most to least accurate: 3, 2, 1, 0, A, B, Z}
+\item{lon}{longitude in decimal degrees, WGS84}
+\item{lat}{latitude in decimal degrees, WGS84}
+}
 }
 \usage{
 ellie
