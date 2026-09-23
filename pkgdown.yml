@@ -3,7 +3,8 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   mapr: mapr.html
-last_built: 2026-09-21T15:24Z
+  articles/windfarms: windfarms.html
+last_built: 2026-09-23T11:32Z
 urls:
   reference: https://jamesgrecian.github.io/mapr/reference
   article: https://jamesgrecian.github.io/mapr/articles
