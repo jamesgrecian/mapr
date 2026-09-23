@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 ```
 
 
-In the guide to [making a map](../mapr.html) we use animal tracking data to define
+In the guide to [making a map](mapr.html) we use animal tracking data to define
 the region of interest. You don't have to: `mapr()` only needs a table with
 `lon` and `lat` columns, so two corner points are enough to describe a study
 area.
@@ -91,7 +91,7 @@ every layer to `prj` as it draws, so they line up with the land without any
 `st_transform()` calls.
 
 To add the map furniture from the
-[main guide](../mapr.html), build the frame from the same corner
+[main guide](mapr.html), build the frame from the same corner
 coordinates you gave `mapr()`, and remember that `buff` needs to be large
 enough for the land to reach past the frame on every side.
 
