@@ -1,8 +1,8 @@
 # Mapping North Sea offshore wind farms
 
 In the guide to [making a
-map](https://jamesgrecian.github.io/mapr/mapr.md) we use animal tracking
-data to define the region of interest. You don’t have to:
+map](https://jamesgrecian.github.io/mapr/articles/mapr.md) we use animal
+tracking data to define the region of interest. You don’t have to:
 [`mapr()`](https://jamesgrecian.github.io/mapr/reference/mapr.md) only
 needs a table with `lon` and `lat` columns, so two corner points are
 enough to describe a study area.
@@ -98,8 +98,8 @@ land without any
 calls.
 
 To add the map furniture from the [main
-guide](https://jamesgrecian.github.io/mapr/mapr.md), build the frame
-from the same corner coordinates you gave
+guide](https://jamesgrecian.github.io/mapr/articles/mapr.md), build the
+frame from the same corner coordinates you gave
 [`mapr()`](https://jamesgrecian.github.io/mapr/reference/mapr.md), and
 remember that `buff` needs to be large enough for the land to reach past
 the frame on every side.
